@@ -1,0 +1,36 @@
+
+/* typical global request */
+request {
+	command: 'announce',
+	prefix: '1.1.1.0/24',
+	functions [
+		{
+			/* l3aggr, class = 0 */
+			id: 101
+		},
+		{
+			/* security, class = 0 */
+			id: 102
+		},
+	]
+}
+
+/* typical private request */
+request {
+	command: 'announce',
+	prefix: '10.0.0.0/24',
+	functions [
+		{
+			/* private l3aggr, class = 1 */
+			id: 501
+		},
+		{
+			/* CGN, class = 0 (uplink-side based)*/
+			id: 110
+		},
+		{
+			/* security, class = 0 */
+			id: 102
+		},
+	]
+}
