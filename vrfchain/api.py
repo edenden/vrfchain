@@ -15,7 +15,10 @@ class APIHandler(tornado.web.RequestHandler):
 		except:
 			raise tornado.web.HTTPError(403)
 
-		result = self.request_process(request)
+		results = self.request_process(request)
+		for result in results:
+			print result
+
 		self.write(json.dumps(result))
 
 	def request_process(self, request):

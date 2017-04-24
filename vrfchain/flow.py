@@ -20,7 +20,7 @@ class Flow():
 					func = func_config
 
 			func_next = {}
-			if i < len(functions):
+			if i < len(functions) - 1:
 				func_req_next = functions[i + 1]
 				for func_config in self.config['functions']:
 					if func_req_next['id'] == func_config['id']:
@@ -30,8 +30,8 @@ class Flow():
 				func_next['target'] = '65000:100'
 				func_next['mark'] = 0
 
-			result.append(self.flow_topside(cmd, func, func_next, prefix))
-			result.append(self.flow_btmside(cmd, func, func_next, prefix))
+			result.extend(self.flow_topside(cmd, func, func_next, prefix))
+			result.extend(self.flow_btmside(cmd, func, func_next, prefix))
 
 		return result
 
@@ -45,13 +45,13 @@ class Flow():
 		route = {}
 		fc = self.config['classes'][func['class']]
 
-		route['rd'] = self.config['router-id'] + ':' + func['id']
+		route['rd'] = self.config['router-id'] + ':' + str(func['id'])
 		route['match'] = {}
 		route['match']['source'] = prefix
 		route['then'] = {}
 		route['then']['extended-community'] = 'target:' + func['target']
-		route['then']['mark'] = func_next['mark']
-		route['then']['redirect'] = 'target:' + fc['target']
+		route['then']['mark'] = str(func_next['mark'])
+		route['then']['redirect'] = fc['target']
 
 		result = cmd + ' flow route ' + json.dumps(route)
 		return result
@@ -60,9 +60,9 @@ class Flow():
 		route = {}
 		fc = self.config['classes'][func['class']]
 
-		route['rd'] = self.config['router-id'] + ':' + fc['id']
+		route['rd'] = self.config['router-id'] + ':' + str(fc['id'])
 		route['match'] = {}
-		route['match']['dscp'] = func['mark']
+		route['match']['dscp'] = str(func['mark'])
 		route['match']['destination'] = prefix
 		route['then'] = {}
 		route['then']['extended-community'] = 'target:' + fc['target']
@@ -81,9 +81,9 @@ class Flow():
 		route = {}
 		fc = self.config['classes'][func['class']]
 
-		route['rd'] = self.config['router-id'] + ':' + fc['id']
+		route['rd'] = self.config['router-id'] + ':' + str(fc['id'])
 		route['match'] = {}
-		route['match']['dscp'] = func_next['mark']
+		route['match']['dscp'] = str(func_next['mark'])
 		route['match']['source'] = prefix
 		route['then'] = {}
 		route['then']['extended-community'] = 'target:' + fc['target']
@@ -96,13 +96,13 @@ class Flow():
 		route = {}
 		fc = self.config['classes'][func['class']]
 
-		route['rd'] = self.config['router-id'] + ':' + func_next['id']
+		route['rd'] = self.config['router-id'] + ':' + str(func_next['id'])
 		route['match'] = {}
 		route['match']['destination'] = prefix
 		route['then'] = {}
 		route['then']['extended-community'] = 'target:' + func_next['target']
-		route['then']['mark'] = func['mark']
-		route['then']['redirect'] = 'target:' + fc['target']
+		route['then']['mark'] = str(func['mark'])
+		route['then']['redirect'] = fc['target']
 
 		result = cmd + ' flow route ' + json.dumps(route)
 		return result
