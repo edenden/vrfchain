@@ -10,7 +10,8 @@ class APIHandler(tornado.web.RequestHandler):
 
 	def post(self):
 		try:
-			request = json.loads(self.get_argument("request"))
+			request = tornado.escape.json_decode(
+				self.request.body)
 		except:
 			raise tornado.web.HTTPError(403)
 
@@ -27,5 +28,6 @@ class APIHandler(tornado.web.RequestHandler):
 			raise tornado.web.HTTPError(403)
 
 		cmd = request['command']
-		return flow.flow_generate(functions, cmd, prefix)
+		generator = flow.Flow()
+		return generator.flow_generate(functions, cmd, prefix)
 

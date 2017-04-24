@@ -1,71 +1,30 @@
 # coding: utf-8
 
 import json
+import os
 
 class Flow():
 	def __init__(self):
-		config = """{
-			router-id: '10.0.0.100',
-			functions [
-				{
-					id: 101,
-					target: '65000:101',
-					mark: 1,
-					class: 0
-				},
-				{
-					id: 102,
-					target: '65000:102',
-					mark: 2,
-					class: 0
-				},
-				{
-					id: 501,
-					target: '65000:501',
-					mark: 10,
-					class: 1
-				},
-				{
-					id: 502,
-					target: '65000:502',
-					mark: 11,
-					class: 1
-				},
-				{
-					id: 110,
-					target: '65000:110',
-					mark: 3,
-					class: 0
-				}
-			],
-			classes [
-				{
-					id: 1000,
-					target: '65000:1000'
-				},
-				{
-					id: 1001,
-					target: '65000:1001'
-				}
-			]
-		}"""
-		self.data = json.loads(self.config)
+		filename = os.path.join(os.path.dirname(__file__),
+			"config.json")
+		with open(filename, 'r') as f:
+			self.config = json.load(f)
 
 	def flow_generate(self, functions, cmd, prefix):
 		result = []
 
 		for i, func_req in enumerate(functions):
 			func = {}
-			for func_data in self.data['functions']:
-				if func_req['id'] == func_data['id']:
-					func = func_data
+			for func_config in self.config['functions']:
+				if func_req['id'] == func_config['id']:
+					func = func_config
 
 			func_next = {}
 			if i < len(functions):
 				func_req_next = functions[i + 1]
-				for func_data in self.data['functions']:
-					if func_req_next['id'] == func_data['id']:
-						func_next = func_data
+				for func_config in self.config['functions']:
+					if func_req_next['id'] == func_config['id']:
+						func_next = func_config
 			else:
 				func_next['id'] = 100
 				func_next['target'] = '65000:100'
@@ -78,15 +37,15 @@ class Flow():
 
 	def flow_topside(self, cmd, func, func_next, prefix):
 		result = []
-		result.append(flow_topside_egress(cmd, func, func_next, prefix))
-		result.append(flow_topside_ingress(cmd, func, func_next, prefix))
+		result.append(self.flow_topside_egress(cmd, func, func_next, prefix))
+		result.append(self.flow_topside_ingress(cmd, func, func_next, prefix))
 		return result
 
 	def flow_topside_egress(self, cmd, func, func_next, prefix):
 		route = {}
-		fc = self.data['classes'][func['class']]
+		fc = self.config['classes'][func['class']]
 
-		route['rd'] = self.data['router-id'] + ':' + func['id']
+		route['rd'] = self.config['router-id'] + ':' + func['id']
 		route['match'] = {}
 		route['match']['source'] = prefix
 		route['then'] = {}
@@ -99,9 +58,9 @@ class Flow():
 
 	def flow_topside_ingress(self, cmd, func, func_next, prefix):
 		route = {}
-		fc = self.data['classes'][func['class']]
+		fc = self.config['classes'][func['class']]
 
-		route['rd'] = self.data['router-id'] + ':' + fc['id']
+		route['rd'] = self.config['router-id'] + ':' + fc['id']
 		route['match'] = {}
 		route['match']['dscp'] = func['mark']
 		route['match']['destination'] = prefix
@@ -114,15 +73,15 @@ class Flow():
 
 	def flow_btmside(self, cmd, func, func_next, prefix):
 		result = []
-		result.append(flow_btmside_egress(cmd, func, func_next, prefix))
-		result.append(flow_btmside_ingress(cmd, func, func_next, prefix))
+		result.append(self.flow_btmside_egress(cmd, func, func_next, prefix))
+		result.append(self.flow_btmside_ingress(cmd, func, func_next, prefix))
 		return result
 
 	def flow_btmside_egress(self, cmd, func, func_next, prefix):
 		route = {}
-		fc = self.data['classes'][func['class']]
+		fc = self.config['classes'][func['class']]
 
-		route['rd'] = self.data['router-id'] + ':' + fc['id']
+		route['rd'] = self.config['router-id'] + ':' + fc['id']
 		route['match'] = {}
 		route['match']['dscp'] = func_next['mark']
 		route['match']['source'] = prefix
@@ -135,9 +94,9 @@ class Flow():
 
 	def flow_btmside_ingress(self, cmd, func, func_next, prefix):
 		route = {}
-		fc = self.data['classes'][func['class']]
+		fc = self.config['classes'][func['class']]
 
-		route['rd'] = self.data['router-id'] + ':' + func_next['id']
+		route['rd'] = self.config['router-id'] + ':' + func_next['id']
 		route['match'] = {}
 		route['match']['destination'] = prefix
 		route['then'] = {}
