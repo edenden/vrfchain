@@ -45,7 +45,7 @@ class Flow():
 		route = {}
 		fc = self.config['classes'][func['class']]
 
-		route['rd'] = self.config['router-id'] + ':' + str(func['id'])
+		route['rd'] = func['target']
 		route['match'] = {}
 		route['match']['source'] = prefix
 		route['then'] = {}
@@ -60,7 +60,7 @@ class Flow():
 		route = {}
 		fc = self.config['classes'][func['class']]
 
-		route['rd'] = self.config['router-id'] + ':' + str(fc['id'])
+		route['rd'] = fc['target']
 		route['match'] = {}
 		route['match']['dscp'] = str(func['mark'])
 		route['match']['destination'] = prefix
@@ -81,7 +81,7 @@ class Flow():
 		route = {}
 		fc = self.config['classes'][func['class']]
 
-		route['rd'] = self.config['router-id'] + ':' + str(fc['id'])
+		route['rd'] = fc['target']
 		route['match'] = {}
 		route['match']['dscp'] = str(func_next['mark'])
 		route['match']['source'] = prefix
@@ -96,7 +96,7 @@ class Flow():
 		route = {}
 		fc = self.config['classes'][func['class']]
 
-		route['rd'] = self.config['router-id'] + ':' + str(func_next['id'])
+		route['rd'] = func_next['target']
 		route['match'] = {}
 		route['match']['destination'] = prefix
 		route['then'] = {}
